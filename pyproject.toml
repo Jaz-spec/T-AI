@@ -8,7 +8,9 @@ dependencies = [
 ]
 
 [project.scripts]
-ai = "main.main:hello"
+main = "main.main:hello"
+ai = "ai.ai:main"
+
 
 [build-system]
 requires = ["setuptools>=45", "wheel"]

@@ -1,9 +1,12 @@
 pyproject.toml
+src/__init__.py
 src/T_AI.egg-info/PKG-INFO
 src/T_AI.egg-info/SOURCES.txt
 src/T_AI.egg-info/dependency_links.txt
 src/T_AI.egg-info/entry_points.txt
 src/T_AI.egg-info/requires.txt
 src/T_AI.egg-info/top_level.txt
+src/ai/__init__.py
+src/ai/ai.py
 src/main/__init__.py
 src/main/main.py
