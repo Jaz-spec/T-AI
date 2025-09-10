@@ -3,7 +3,8 @@ import click
 import subprocess
 
 
-def getPhi(user_input, system_prompt="be helpful", model='phi3:mini'):
+def getPhi(user_input, system_prompt="be helpful", model='dolphin3:latest'):
+    print("CALLING AI")
     # Connects to local Ollama server
     url = "http://localhost:11434/api/generate"
     data = {
@@ -26,39 +27,53 @@ def main(user_input):
             text=True)
         print(results.stdout)
     else:
-        click.echo("Choosing tool")
         tool = chooseTool(user_input)
-        command = getCommand(tool)
+        command = getCommand(user_input, tool)
         if command:
-            print("command present")
+            print("MAKING TERMINAL CALL")
             commandResults = subprocess.run(command, shell=True, capture_output=True, text=True)
             print(commandResults.stdout)
 
-def getCommand(tool):
-    print("geting command")
-    lines = tool.split('\n')
-    for line in lines:
-        if line and line.strip().startswith("COMMAND:"):
-            arg = line.replace("COMMAND:", "")
-            print(f"ARG: {arg}")
-            return arg
 
 if __name__ == "__main__":
     main()
 
 def chooseTool(user_input):
+    print("CHOOSING TOOL")
     system_prompt = """
     Your job is to choose the most relevent tool out of the following list and respond in the response format with no extra text:
        timetrack: a tool that tracks time
-       timetrack tool commands:
-           timetrack start: starts the timer
-           timetrack stop: stops the Timer
-
+       lazygit: a tool that allows you to make commits to github
 
     response format:
         TOOL: [insert tool name here]
-        COMMAND: [insert relevent command here]
     """
-    tool = getPhi(user_input, system_prompt)
-    print(tool)
-    return tool
+    response = getPhi(user_input, system_prompt)
+    tool = response.replace("TOOL:", "").strip().lower()
+    if tool == "timetrack":
+        return tool
+    else:
+        print("Error: no tool match @ tool choice")
+        print(f"timetrack -> {tool}")
+        return None
+
+def getCommand(user_input, tool):
+    if tool and tool == "timetrack":
+        system_prompt = """
+        Your job is to choose the most appropriate command to forfill the users request. Your options are:
+            timetrack start: starts the timer
+            timetrack stop: stops the Timer
+            timetrack status: shows how long and active timer has been running for
+
+        response format:
+            COMMAND: [insert command here]
+        """
+        response = getPhi(user_input, system_prompt)
+        command = response.replace("COMMAND:", "")
+        if command in ('timetrack start', 'timetrack stop', 'timetrack status'):
+            return command
+        else:
+            print("Error: valid command not returned")
+            return None
+    else:
+        print("Error: no tool match @ command choice")
